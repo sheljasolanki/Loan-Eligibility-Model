@@ -3,7 +3,13 @@
 > **"Will I get a personal loan, and from whom?"**
 > A public-source dataset of personal-loan eligibility rules for 20 Indian lenders, plus a transparent, rule-based (no machine learning) model that screens one salaried applicant's profile against all of them and explains exactly why.
 
-**Live app:** open `webui/index.html` (no install) or run `python app.py`. **Results:** [`tests/test_results.md`](tests/test_results.md) · **Insights:** [`docs/insights.md`](docs/insights.md)
+## 🚀 Live demo
+
+**Try it here: https://sheljasolanki.github.io/Loan-Eligibility-Model/**
+
+Enter a salaried applicant's details and the app checks all 20 lenders at once. It shows who approves, the best option by true cost (APR including fees), how confident each approval is, and what to change to unlock more lenders.
+
+The whole eligibility engine runs in your browser, so there is no server and nothing you enter is sent anywhere.
 
 **Important:** this project gives an **indicative screening against publicly published rules**. It is **not** a bank approval, a loan offer, an approval probability or a personalised interest rate. Banks apply internal underwriting that is not public.
 
@@ -305,7 +311,9 @@ From `python scripts/simulate.py`, which runs **10,000 synthetic salaried applic
 
 ## 14. How to run
 
-**No install:** open `webui/index.html` in a browser. The model, data, sample profiles and insights are all bundled.
+**Online (nothing to install):** https://sheljasolanki.github.io/Loan-Eligibility-Model/
+
+**Locally, no install:** open `webui/index.html` in a browser. The model, data, sample profiles and insights are all bundled.
 
 **With Python 3.9+ (standard library only),** from the repo folder:
 
