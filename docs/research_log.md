@@ -143,3 +143,46 @@ age min 21 or 23 (by loan type), max 60 (entry age extended up to 62 in some cas
 - HDFC publishes realised pricing for Q1 FY27: avg IRR 10.89%, min 9.97%, max 24.06%; avg APR 11.18%. Used to validate the rate-band template.
 - Aditya Birla FOIR article: "ideal FOIR is usually below 40%" -> used as the strict bound for ABFL's estimated FOIR, not as the base value.
 - City-tier income floors dropped from scope; city_tier removed from variables.csv.
+
+## 2026-10-12 (second pass) — re-checking peer estimates against the lender's own page
+
+Earlier the same day, 33 rules labelled `official_published` were relabelled
+`peer_estimate` because their own notes said the value had been copied from a peer
+repo and never verified. Those rows still carried the lender's **own** URL, which is
+misleading: the link looks official while the number is not.
+
+So every one of those rows was re-opened and the lender's page was actually read.
+
+**Promoted to `official_published` — the value is published on that page:**
+
+| Rule | Value | What the page says |
+|---|---|---|
+| `R_UNION_233` Union max loan | ₹50,00,000 | "up to Rs.50 lakhs", subject to eligibility and repayment capacity |
+| `R_UNION_235` Union max tenure | **84 months (corrected from 60)** | repayment "up to 84 months (7 years)" |
+| `R_FEDERAL_186` Federal max loan | ₹25,00,000 | "Maximum Loan amount of Rs.25 Lakh" |
+| `R_PNB_135` PNB max tenure | 72 months | "maximum 72 (Seventy-Two) equated monthly installments (EMIs)" |
+| `R_LTFINANCE_143` L&T min age | 21 | applicants "aged between 21 and 58 years" |
+| `R_LTFINANCE_144` L&T max age | 58 | same sentence |
+| `R_LTFINANCE_151` L&T min tenure | 12 months | "flexible repayment tenure ranging from 12 to 72 months" |
+| `R_KOTAK_064` Kotak min tenure | 12 months | "Borrow up to Rs.1 crore for 1-6 years" |
+
+**Reclassified `calculator_derived`:** `R_LTFINANCE_149` L&T min loan ₹50,000 — the
+lower bound of the loan-amount field in L&T's own EMI calculator, not a stated rule.
+
+**Still `peer_estimate` (46 rules).** The lender's page was read and the value is
+simply not there. Their notes now say which page was checked and that the URL is the
+page checked, not a source for the number. The pattern is consistent: no lender in
+this set publishes its **FOIR cap** or its **salary multiple**, which is why those
+remain the model's largest unknown. Also not published: Axis and L&T minimum CIBIL,
+SBI minimum CIBIL ("a decent Credit score, as per Bank's internal policy"), Bajaj and
+IDFC minimum income, Kotak maximum rate, Indian Bank maximum age.
+
+**One value was wrong, not just mislabelled.** Union's maximum tenure was 60 months,
+inherited from the peer repo; the bank's own page says 84. Correcting it changed one
+expected test outcome: for P19 (government employee, CIBIL 810) the best option moves
+from Axis to Union Bank at 9.25% APR with the processing fee waived. Union was always
+the cheaper rate; it now also carries one fewer estimated deciding field, so the
+A09 ranking penalty no longer pushes it behind Axis.
+
+Source-type totals after this pass: **273 official_published, 10 calculator_derived,
+85 peer_estimate** (was 265 / 9 / 94).

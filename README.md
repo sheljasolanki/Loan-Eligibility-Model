@@ -107,11 +107,13 @@ rate PDFs             and how it was derived       + rate_tiers.csv             
 
    | Source type | Rules | Meaning |
    |---|---:|---|
-   | `official_published` | 265 | On the lender's own page, PDF, fee schedule or FAQ |
-   | `calculator_derived` | 9 | Reverse-engineered from the lender's own public calculator |
-   | `peer_estimate` | 94 | Not published by the lender: from comparable lenders or a third-party page, flagged everywhere it affects a result |
+   | `official_published` | 273 | On the lender's own page, PDF, fee schedule or FAQ |
+   | `calculator_derived` | 10 | Reverse-engineered from the lender's own public calculator |
+   | `peer_estimate` | 85 | Not published by the lender: from comparable lenders or a third-party page, flagged everywhere it affects a result |
 
    On 12 Oct, 33 rules that had been labelled "official" while their own notes said "copied from a classmate's repo, not verified" were relabelled as peer estimates. A test now fails if that ever happens again.
+
+   Those relabelled rules still carried the lender's own URL, so each one was then opened and read on 12 Oct. Eight values were found published on the lender's page after all and are now `official_published`; one came from the lender's own EMI calculator and is `calculator_derived`. One of the eight was also wrong: Union Bank's page states a maximum tenure of **84 months**, not the 60 inherited from the peer repo, so the value was corrected. For every rule still marked `peer_estimate`, the note now records which lender page was checked and that the value is not published there, so the URL is not mistaken for a source for the number.
 4. **Build a deterministic rule engine.** There is no ML because there is no approval data to train on.
 5. **Measure the uncertainty** that the estimates create, rather than hiding it (section 8.7).
 6. **Test it:** 19 profiles with expected outcomes, 54 unit tests, and a parity test that runs the Python and browser engines on 415 profiles.
@@ -203,19 +205,19 @@ For each applicant × lender:
 | P04 EDGE high existing EMI (68% of income) | 🟡 | 6/20 | 5–19 | Indian Bank (APR 10.08%, borderline) | Cut EMIs by ₹15,500 (+13) |
 | P05 EDGE new job (3 months) | 🟡 | 12/20 | 10–13 | Indian Bank (APR 10.15%, strong) | Wait 33 months (+5) |
 | P06 EDGE age near limit (57, govt) | 🟡 | 16/20 | 13–16 | Union (APR 9.55%, borderline, 24m) | – |
-| P07 EDGE age 59, wants ₹20L | 🟡 | 9/20 | 9–13 | Bajaj (APR 11.11%; lends to age 80 at maturity) | SBI salary account (+1) |
-| P08 EDGE too young (20, fresher) | 🟡 | 2/20 | 1–3 | Union (APR 10.11%, borderline) | Wait 12 months (+1) |
-| P09 EDGE no credit history | 🟡 | 3/20 | 3–3 | Union (APR 10.11%, borderline) | Build history to CIBIL 750 (+15) |
+| P07 EDGE age 59, wants ₹20L | 🟡 | 9/20 | 9–12 | Bajaj (APR 11.11%; lends to age 80 at maturity) | SBI salary account (+1) |
+| P08 EDGE too young (20, fresher) | 🟡 | 2/20 | 1–3 | Union (APR 9.98%, borderline) | Wait 12 months (+1) |
+| P09 EDGE no credit history | 🟡 | 3/20 | 3–3 | Union (APR 9.98%, borderline) | Build history to CIBIL 750 (+15) |
 | P10 EDGE income ₹18k | 🟡 | 4/20 | 1–4 | Indian Bank (APR 10.15%) | Salary ₹30k (+11) |
 | P11 Axis account holder, ₹20k | 🟡 | 9/20 | 4–10 | Indian Bank (APR 10.15%) | Salary ₹30k (+7) |
 | P12 Same ₹20k, no Axis account | 🟡 | 8/20 | 4–9 | Indian Bank (APR 10.15%) | Salary ₹30k (+8) |
 | P13 High earner, ₹3L/month, wants ₹40L | 🟢 | 19/20 | 19–19 | Axis (APR 9.51%, strong, ₹40L) | SBI salary account (+1) |
 | P14 EDGE CIBIL 700, EMIs 62% | 🟡 | 8/20 | 1–12 | Indian Bank (APR 10.15%, borderline) | Cut EMIs by ₹9,500 (+4) |
-| P15 EDGE small unlisted employer | 🟢 | 9/20 | 9–9 | Union (APR 10.61%, strong) | Raise CIBIL to 750 (+2) |
+| P15 EDGE small unlisted employer | 🟢 | 9/20 | 9–9 | Union (APR 10.48%, strong) | Raise CIBIL to 750 (+2) |
 | P16 EDGE self-employed | 🔴 | – | – | Out of scope (salaried only) | – |
 | P17 EDGE no EMIs but ₹4L card balance | 🟡 | 17/20 | 13–17 | Indian Bank (APR 10.28%) | Raise CIBIL to 750 (+2) |
 | P18 EDGE borderline CIBIL 705 | 🟡 | 12/20 | 9–12 | Indian Bank (APR 10.40%, borderline) | Raise CIBIL to 750 (+6) |
-| P19 Government employee, CIBIL 810 | 🟢 | 19/20 | 19–19 | Axis (APR 9.77%, strong) | – |
+| P19 Government employee, CIBIL 810 | 🟢 | 19/20 | 19–19 | Union (APR 9.25%, strong, fee waived) | – |
 
 \* Lenders approving with every peer estimate at its strict … lenient bound.
 
@@ -262,7 +264,7 @@ From `python scripts/simulate.py`, which runs **10,000 synthetic salaried applic
 
 **Limits**
 - The 20 lenders are a **representative shortlist by market segment**, not a verified top 20 by loan book, which isn't public at lender level.
-- **94 rules are peer estimates**, mostly FOIR caps and salary multiples that no lender publishes. Their effect is measured (section 8.7) but not removed.
+- **85 rules are peer estimates**, mostly FOIR caps and salary multiples that no lender publishes. Their effect is measured (section 8.7) but not removed.
 - Pricing for 18 lenders comes from a template (A04); only PNB and Union publish real tables. Rates also depend on income, employer and loan size, which the template ignores.
 - Moneyview publishes only a minimum fee ("starts at 2%"), so its true cost may be understated.
 - Not modelled: self-employed applicants, city-specific income floors, pre-approved offers, foreclosure costs, enquiry counts and repayment history beyond the score.
