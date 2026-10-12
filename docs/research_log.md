@@ -1,188 +1,311 @@
-# Pending changes (not yet applied to lender_rules.csv)
-Axis, ICICI already applied before this log started.
+# Research log
 
-## Axis calculator run (user, 2026-10-11)
-Inputs: net income 104000, expenses incl. other EMIs 28000 (DOB not entered) -> eligible up to 1,500,000.
-Derived: 15,00,000 / 1,04,000 = 14.4x monthly income. FOIR NOT derivable from one run. Source: axis.bank.in personal loan eligibility calculator, accessed 2026-10-11. Keep foir_max as estimate until more runs.
+How every rule in `data/lender_rules_long.csv` was obtained, from which source, on which date,
+and what it changed. Research ran from 11–12 October 2026 and covers **20 lenders, 368 rules**.
 
-## Axis calculator runs (income 104000, DOB blank)
-expenses 0 -> 15,00,000 | 28,000 -> 15,00,000 | 50,000 -> 15,00,000 | 50,177 -> 15,00,000 | 70,745 -> 10,40,000 (=10.0x income)
-Reading: 15L is a flat cap at low obligations (14.4x income; calculator ceiling or product cap). Obligations of 68% of income still returned 10.4L, so Axis FOIR is NOT below ~68%; likely 70-85% (inference, needs more runs). Still estimate.
-TODO runs: expenses 55k,60k,65k,75k,80k,90k; income 30k/60k/2L with expenses 0 (find salary-multiple cap).
+Scope: **personal loans, salaried applicants, public sources only.** Self-employed criteria were
+collected for some lenders before the scope was fixed; they are recorded in section 7 for reference
+but are not in the model.
 
-## Axis calculator runs, batch 2 (user, 2026-10-11)
-income 104000: expenses 62,943 -> 10,40,000 | 72,872 -> 0
-expenses 0: income 30,000 -> 4,50,000 (15.0x) | 60,000 -> 9,00,000 (15.0x) | 2,00,000 -> 15,00,000 (cap; 15x would be 30L)
-DERIVED (Axis, calculator-observed, source axis.bank.in calculator, 2026-10-11):
-- salary_multiple_max = 15x net monthly income (base tier)
-- calculator absolute cap = INR 15,00,000 (calculator ceiling; product page says up to 50L -> note conflict)
-- obligation tiers: 15x until existing obligations between 48.3% (50,177) and 60.5% (62,943) of income, then 10x (10.4L=10x) up to 68.0% (70,745), ineligible (0) at 70.1% (72,872) -> hard cutoff ~70% of income (72,800) i.e. foir_max ~0.70 on existing obligations. Mark is_estimate=no but notes 'calculator-derived'. TODO narrow drop point (52k, 56k) if time.
+## 1. How a value earns its label
 
-## Axis narrowing runs (user): income 104000, expenses 52,000 -> 15L ; 56,000 -> 15L
-So 15x tier holds up to at least 53.8% of income (56,000); drop to 10x occurs between 56,000 and 62,943 (53.8%-60.5%) -> likely a 60% threshold (62,400). Final Axis model: 15x if obligations <=~60% income; 10x if 60-70%; ineligible >=70%.
+Every rule carries one of three source types. The test suite fails if a rule is labelled official
+while its own evidence note says otherwise.
 
-## Axis boundary confirmed (user): income 104000, expenses 62,234 (59.84%) -> 15L ; 62,943 (60.52%) -> 10.4L
-=> 15x tier ends at exactly 60% of income; 10x tier 60-70%; 0 at >=70% (between 68.0% and 70.07%). Axis FOIR rule CONFIRMED by calculator (is_estimate=no, note 'calculator-derived').
+| Source type | What it means | Count |
+|---|---|---:|
+| `official_published` | Printed on the lender's own page, PDF, fee schedule or FAQ | 273 |
+| `calculator_derived` | Reverse-engineered from the lender's own public calculator (section 3) | 10 |
+| `peer_estimate` | Not published by the lender; from a comparable lender or a third-party page | 85 |
 
-## Kotak (user pasted eligibility text + calculator run, 2026-10-11)
-Official eligibility table (kotak calculator page): employer MNC/public ltd/pvt ltd; age 21-60; min net income 25,000 (Kotak salary a/c), 30,000 (non-Kotak salary a/c), 20,000 (Kotak employees); graduate/diploma; 1 yr experience; CIBIL 750+ 'generally considered good' (soft; keep min_cibil estimate, cibil_preferred=750 official); rate 'as low as 10.99%'; up to Rs 1 crore.
-Calculator run: salary 50,000, obligations 5,000, tenure 10y -> eligible 9,00,000; EMI 11,158; interest 439,045. Implied calculator rate = 8.50% p.a. (reverse-solved), 18.0x salary, (EMI+obligations)/salary = 32.3% -> FOIR not binding here.
+Only a lender's **own website** counts as official. A third-party aggregator such as PaisaBazaar is
+always a peer estimate, however specific its number looks.
 
-## Kotak calculator runs (user, 2026-10-11; kotak.bank.in personal loan eligibility calculator)
-tenure 10 months, obligations 0: salary 30k->6L, 50k->10L, 100k->20L, 200k->40L  (=20x salary; EMI shown 103,937 for 10L/10mo i.e. >salary, so calculator does NOT enforce FOIR or tenure)
-tenure 10y, salary 100k: obl 0->20L (EMI 24,797) | 20k->16L | 40k->12L | 50k->10L | 60k->8L | 70k->6L | 80k->4L | 99k->20k (EMI 247) | 100k->0 (error 'obligation should not be greater than net income')
-earlier: salary 50k, obl 5k, 10y -> 9L (=20 x 45k)
-DERIVED: Kotak calculator eligible amount = 20 x (net monthly income - existing obligations). Tenure does not change the amount. Assumed rate for EMI display = 8.5% p.a. No FOIR cap visible in calculator (obligations up to 99% of income still gave a nonzero amount). No cap seen up to 40L at 200k income (product max 1 Cr).
-Model decision: salary_multiple_free_income = 20 (calculator-derived, indicative, not a published rule); FOIR for Kotak stays a flagged estimate (0.55) applied by our model as prudential check; note calculator is generous vs real underwriting.
+## 2. Coverage by lender
 
-## SBI (user-verified screenshots + T&C text, 2026-10-11; sbi.bank.in personal loan / Xpress Credit pages)
-- eligibility: govt/defence/corporate salaried only; MUST have SBI Salary Package Account; min service: govt/defence 6 months, corporate 12 months; age 21-60 (govt/defence >60 case-by-case); Indian national; 'decent credit score as per bank internal policy' (NO numeric CIBIL cutoff -> min_cibil not disclosed; CIBIL>=800 gets 50% fee waiver)
-- min net monthly salary: govt/defence 20,000; corporate 25,000  (REPLACES estimate 15,000 -> official)
-- amount: min 1 lakh, max 50 lakh subject to EMI/NMI <=65% AND 30x NMI, whichever lower
-- rate (w.e.f. 15.12.2025, updated 28-09-2026): 10.00%-15.00% (spread 1.25-6.25% over 2-yr MCLR 8.75%); mean ROI Q1 FY27 11.54%  (REPLACES estimate 10.3-14.1)
-- tenure: min 6 months, max 84 months; loan must close by retirement/end of contract/age 60
-- processing fee: up to 1.50% (min 1,000, max 15,000) + GST; waivers: defence 100%, Platinum/Rhodium salary pkg 100%, govt 50% (0.75%), CIBIL>=800 50%
-- prepayment: 2% of prepaid amount; waived: defence after 6 months; govt/corporate after 3 yrs; Platinum/Rhodium after 6 months
-- penal charge: 2.40% p.a. on irregular portion up to 60 days; 5% p.a. beyond 60 days
-- docs: PAN, 6 months salary slips, employment proof, ITR/Form16, 6 months salary account statement
+Official rules per lender, after the verification pass in section 6.
 
-## IDFC FIRST (user-verified screenshots, 2026-10-11; idfcfirst.bank.in FIRSTmoney personal loan page)
-- occupation: salaried or self-employed; age 21-60; CIBIL 710+ (hard-looking 'should have'; self-employed page says 760+)
-- amount: min 50,000, max 15 lakh (approved per bank internal policy & creditworthiness)
-- EMI calculator: tenure 9-60 months; rate slider 9.99%-38%; zero foreclosure charges ('repay anytime')
-- Check: 1L @9.99% 60m -> EMI 2,124 (matches formula)
-- Still missing: min income, work experience, FOIR (not published; use eligibility check flow or keep estimate)
+| Lender | Official | Calculator | Peer estimate |
+|---|---:|---:|---:|
+| State Bank of India | 21 | 0 | 2 |
+| HDFC Bank | 16 | 0 | 3 |
+| L&T Finance | 16 | 1 | 4 |
+| ICICI Bank | 15 | 0 | 3 |
+| Indian Bank | 15 | 0 | 5 |
+| Axis Bank | 14 | 4 | 2 |
+| IndusInd Bank | 14 | 0 | 4 |
+| Kotak Mahindra Bank | 14 | 2 | 2 |
+| KreditBee | 14 | 0 | 3 |
+| Poonawalla Fincorp | 14 | 0 | 4 |
+| Tata Capital | 14 | 0 | 3 |
+| Aditya Birla Capital | 13 | 0 | 4 |
+| IDFC FIRST Bank | 13 | 0 | 5 |
+| Bajaj Finance | 12 | 2 | 3 |
+| Federal Bank | 12 | 0 | 7 |
+| Moneyview | 12 | 0 | 4 |
+| Punjab National Bank | 12 | 0 | 7 |
+| Fibe (EarlySalary) | 11 | 1 | 4 |
+| Union Bank of India | 11 | 0 | 9 |
+| YES BANK | 10 | 0 | 7 |
 
-## IDFC FIRST footer (user screenshot): fixed rate, monthly reducing; ROI from 9.99% p.a. (0.83% p.m.); tenure 9-60 months; min EMI 2,124; MAX APR 35% (APR includes fees; slider max nominal rate 38% - CONFLICT 35 APR vs 38 slider, keep rate_max 38 w/ note, apr_max 35); fees page: idfcfirst.bank.in/personal-banking/loans/personal-loan/fees-and-charges (processing fee already 0-3.5% incl GST)
+## 3. Reverse-engineering lender calculators
 
-## IndusInd (user-verified screenshots, 2026-10-11; indusind.bank.in personal loan pages)
-- rates: starting 10.49% p.a. (no max published -> rate_max stays estimate); processing fee up to 3.5% (excl. govt taxes); tenure 12-84 months (up to 48 months for ONLINE personal loan)
-- salaried: min age 21; max age at maturity 60 or retirement (earlier); min net monthly income 25,000 for online application; 2 yrs employment + 1 yr current org; 1 yr stay at current residence if rented; CIBIL 'good, preferably 730 or above' (soft -> cibil_preferred 730 official, min_cibil estimate)
-- self-employed professionals: min age 25; max age at maturity 65; min annual net income post tax 4.8 lakh; 4 yrs post-qualification experience
-- self-employed individuals: min age 25; max age at maturity 65; min annual net income post tax 4.8 lakh; 5 yrs post-qualification experience
-- note: self-employed = two sub-types (professional: doctors/CAs etc; individual: business owners) -> model input self_employed_type
+No lender publishes its FOIR cap or salary multiple. Three lenders expose a public eligibility
+calculator, so those rules were recovered by running the calculator across many inputs and fitting
+the result. This is the strongest evidence in the dataset after a printed figure.
 
-## Bank of Baroda (user screenshot FAQ, 2026-10-11)
-- eligibility: min age 21; gainfully employed OR self-employed; income sufficient to repay EMI; CIBIL 'must be above 701 and above' -> min_cibil 701 (official FAQ wording; keep, resolves BoB CIBIL), selfemp_offered = yes (FAQ) -> change earlier 'not stated'
+### 3.1 Axis Bank — FOIR tiers found by bisection
 
-## PNB (user screenshots, 2026-10-11; pnb.bank.in)
-Salaried public scheme (pnb.bank.in/personalloanforpublic.html): quantum up to 24x GROSS monthly salary, max Rs 20 lakh, depending on repaying capacity (confirms salary_multiple 24x, max 20L; note FAQ page's 20x/15L is older -> official scheme page wins)
-RLLR 8.35% (PNB interest-rate page); other advances rate tables are collapsed -> personal loan spread/rate range still NOT captured: user to open 'Retail Advances' accordion and read personal loan row.
-PNB self-employed scheme (separate scheme 'Personal Loan Scheme for Self-Employed'): applicable only to professionals (CA/CS, data analysts, architects/valuers, LIC agents, engineers, software developers, financial consultants); individuals only; min gross annual income 6 lakh for last 2 yrs; CIC score >= 750; satisfactory savings/current a/c with PNB for 2 yrs with min annual credits 5 lakh in previous FY; amount = 10x average gross monthly income of last 2 yrs, max 5 lakh; margin nil; security: third-party guarantor (not close relative) with GAI>=6 lakh and CIC>=650; repayment max 60 EMIs or age 65 whichever earlier; prepayment nil; scheme only in metro/urban branches (initially metro only). => PNB selfemp_offered = yes (restricted professionals, 5L cap)
+Source: axis.bank.in personal loan eligibility calculator, 11 Oct 2026. Net income ₹1,04,000 held
+constant, obligations varied.
 
-## PNB rate table (user screenshots, 2026-10-11; pnb.bank.in retail advances rate page)
-Digital personal loan (PAPL) - floating = RLLR 8.35% + BSP spread; fixed shown:
-- Central/State Govt/PSU/Pvt employees (CIBIL TU): >=800 -> RLLR+2.50% (presently 10.85%) fixed 11.85% | 750-799 or nil history (-1/0) -> RLLR+3.50% (11.85%) fixed 12.85% | 700-749 -> RLLR+4.50% (12.85%) fixed 13.85% (NOT applicable to Pvt employees => Pvt employees need CIBIL >=750 or nil history)
-- Pensioners: CIBIL>=680 -> RLLR+2.50% (10.85%) fixed 11.85%
-- Existing customer on basis of QAB & TRV: >=800 -> 10.85% (fixed 11.85%); 750-799 -> RLLR+4.50% (12.85%) fixed 13.85%
-- Existing car/home/personal loan borrower: >=800 -> 10.85% (fixed 11.85); 750-799 -> RLLR+3.50% (11.85%) fixed 12.85%
-- NTB customers (PNB SWAAGAT): >=800 -> 10.85% / fixed 11.85; 750-799 -> 11.85% / fixed 12.85; 700-749 incl -1/0/no hit -> 12.85% / fixed 13.85
-- Fully repaid home/car/education/personal loan borrowers: >=800 -> 10.85% / 11.85 fixed; 750-799 -> 11.85% / 12.85 fixed
-- Pensioner scheme: starting 10.60% p.a. headline; floating RLLR+2.50% (10.85%), fixed 11.85%
-DERIVED for model (official): PNB digital PL floating rate (presently) 10.85% (CIBIL>=800) / 11.85% (750-799) / 12.85% (700-749, govt/PSU only); fixed 11.85/12.85/13.85. => PNB rate_min 10.85 (floating; fixed 11.85), rate_max 12.85 floating (13.85 fixed) for PAPL; REPLACES estimate 12.15. PNB min_cibil: 700 (govt/PSU) / 750 (private employees) OFFICIAL -> replaces estimate. Rate is CIBIL-tiered => good example for README (score-based pricing).
+| Existing obligations | % of income | Eligible amount | Implied multiple |
+|---:|---:|---:|---|
+| 0 | 0% | 15,00,000 | capped |
+| 50,177 | 48.3% | 15,00,000 | capped |
+| 56,000 | 53.8% | 15,00,000 | capped |
+| 62,234 | **59.8%** | 15,00,000 | capped |
+| 62,943 | **60.5%** | 10,40,000 | 10× |
+| 70,745 | 68.0% | 10,40,000 | 10× |
+| 72,872 | **70.1%** | 0 | rejected |
 
-## Bajaj Finance (user screenshot, bajajfinserv.in personal loan page, 2026-10-11)
-rate from 10% p.a.; amount 40,000 - 55 lakh; tenure 12-108 months (calculator options 84/96/108); CIBIL 650 and above required (CONFIRMS 650, replaces 685); loan variants: Term loan (fixed instalments, part-prepayment charges applicable) and Flexi loan (zero charges on withdrawals and pre-payment) -> Flexi variant = prepayment nil; 100% online. Still unpublished: min salary (keep 25001 estimate), max rate (30.5 from earlier official scrape), FOIR.
+A second sweep with obligations at zero gave the base multiple: income ₹30,000 → ₹4,50,000 and
+₹60,000 → ₹9,00,000, both exactly 15×; income ₹2,00,000 → ₹15,00,000, where the ₹15 lakh calculator
+ceiling binds instead.
 
-## Calculator runs (user, 2026-10-11) - dropdown 'AMLA' (city), DOB 04/05/2000, income slider 25K-10L, 'Monthly expenses' -- ASSUMED Bajaj Finserv calculator (CONFIRM lender/URL)
-income 25,000 exp 0 -> 2,50,000 (10x) | 30,000 exp 0 -> 3,00,000 (10x) | 30,000 exp 20,000 -> 1,17,663 | 60,000 exp 20,000 -> 6,00,000 (10x)
-Analysis: 10x monthly income cap when expenses low. 1,17,663 = EMI 2,500 at 10% for 60 months exactly (one of several fits) -> consistent w/ Bajaj 10% start rate; EMI capacity 2,500 at income 30k/exp 20k. Not yet enough to derive FOIR: 25%*(income-exp) fits this point but fails 60k/20k (would give 4.7L, shown 6L). TODO runs: income 60k with exp 25k,30k,35k,40k,45k; income 1L exp 0; note lender+URL.
+**Derived rule (A11):** 15× net monthly income while obligations are at or below 60% of income;
+10× between 60% and 70%; ineligible at 70% and above. The 60% and 70% boundaries are confirmed to
+within 0.7 percentage points, so these are stored as `calculator_derived`, not estimates.
 
-## Calculator batch 3 (same calculator, income 60,000; AMLA, DOB 04/05/2000), user 2026-10-11
-expenses 33,000 -> 5,64,784 | 35,000 -> 4,70,654 | 40,000 -> 2,35,327 | 41,000 -> 1,88,261 | 42,000 -> 1,41,196 | 43,000 -> 94,131 | 44,000 -> 47,065 | 45,000 -> 0
-DERIVED (fits every run to the rupee): eligible = min( 10 x monthly income , PV_factor(10% p.a., 60 months)=47.0653 x (0.75 x income - expenses) ).
-=> FOIR = 75% of income (EMI + expenses <= 75%), assumed rate 10.0%, assumed tenure 60 months, salary multiple cap 10x. Checks: 30k/20k -> 2,500 x 47.0653 = 1,17,663 OK; 60k/20k -> 11.8L capped to 6L (10x) OK.
-Lender presumed Bajaj Finserv (CONFIRM lender name + URL). If confirmed: Bajaj foir_max=0.75 (calculator-derived, is_estimate=no), salary_multiple_max=10.
+*Conflict noted:* the calculator ceiling is ₹15 lakh while the product page advertises up to ₹50 lakh.
+Recorded on the rule rather than silently resolved.
 
-## CONFIRMED (user): the calculator runs above are Bajaj Finserv — https://www.bajajfinserv.in/personal-loan-eligibility-calculator (accessed 2026-10-11)
-=> Bajaj: foir_max=0.75 (calculator-derived), salary_multiple_max=10, assumed calc rate 10%, 60 months. is_estimate=no, note 'calculator-derived'.
+### 3.2 Kotak Mahindra Bank — a free-income multiple
 
-## Tata Capital (user screenshots, tatacapital.com/personal-loan.html, 2026-10-11)
-amount 40,000 - 35,00,000 (resolves min 40k vs 75k: 40,000 official); tenure up to 6 years (72 months); rate starting 10.99%; ROI range 10.99% - 33% (max ROI 33% OFFICIAL, replaces estimate 24); APR 10.99% - 45% (apr_max 45); rate depends on income, CIBIL, loan amount, tenure, repayment capacity, employment nature, debt-to-income ratio, financial history; EMI calculator default 10.99%, 2y, 1L -> EMI 4,660 (matches formula). Still unpublished: FOIR (calculator on tatacapital.com/personal-loan-eligibility-calculator may exist), CIBIL cutoff (725+ preferred, from earlier scrape).
+Source: kotak.bank.in personal loan eligibility calculator, 11 Oct 2026.
 
-## Tata Capital eligibility table (user screenshot, salaried, 2026-10-11)
-employment: salaried in private company / public sector / govt org; age 21-58; Indian residents only; min monthly salary 20,000 (confirms 20k); work experience at least 1 year (CONFLICT: earlier scrape said 1y current job + 2y total -> use 1y total from this table, note conflict); credit score 725+ 'improves approval chances' (soft). Tata eligibility/FOIR calculator NOT WORKING for user -> Tata foir_max stays estimate (0.55 private/NBFC peer default, flagged is_estimate=yes, method=peer median), no calculator-derived value.
+| Salary | Obligations | Eligible |
+|---:|---:|---:|
+| 1,00,000 | 0 | 20,00,000 |
+| 1,00,000 | 20,000 | 16,00,000 |
+| 1,00,000 | 50,000 | 10,00,000 |
+| 1,00,000 | 80,000 | 4,00,000 |
+| 1,00,000 | 99,000 | 20,000 |
+| 50,000 | 5,000 | 9,00,000 |
 
-## Poonawalla (user screenshot, poonawallafincorp.com/personal-loan, 2026-10-11): up to 50 lakh; starting 9.99% p.a.; tenure 12-84 months (confirms scrape). Still unverified by user: min income 25k, CIBIL 700, fee up to 4%, max rate, FOIR.
-## USER-VERIFIED SO FAR: ICICI, Axis, Kotak, SBI, IDFC FIRST, IndusInd, BoB(partial), PNB, Bajaj, Tata, Poonawalla
-## LEFT: HDFC, Aditya Birla, Moneyview, KreditBee, SMFG/Fullerton, Hero FinCorp, Navi, CASHe, Fibe (+ BoB amount/location table, PNB min income & age)
+**Derived:** eligible = 20 × (net monthly income − existing obligations). Tenure does not change the
+amount, and obligations at 99% of income still return a positive figure, so the calculator applies
+**no FOIR cap at all**.
 
-## Moneyview (user screenshots FAQ, moneyview.in, 2026-10-11)
-min amount 5,000; max amount decided by lending partner's own underwriting model, up to 10 lakh; loans via digital lending PARTNERS (moneyview is the platform); tenure 3-60 months; monthly interest 1.16% - 3% (= 13.9% - 36% p.a. nominal) -> rate_min 14.0 (page '14% annually'), rate_max 36.0 now OFFICIAL (was estimate); APR 17% - 45% (apr_max 45, apr_min 17); disbursal within 24 hours of approval.
-## Fibe (user screenshot, EMI calculator, fibe.in, 2026-10-11)
-calculator: loan amount 10K - 10L; interest rate slider 12% - 30%; tenure 6-36 months. Check: 1,45,000 @18% 12m -> EMI 13,294. => rate_max 30% per calculator (replaces 36 estimate; but slider may not equal policy max -> keep note 'calculator slider'); rate_min 12 (calculator) vs 18% 'starting from' on page (earlier scrape) -> CONFLICT; tenure 6-36 confirmed; min amount 10,000.
+That result is too generous to use as an underwriting rule — at 10 months' tenure it returned an EMI
+larger than the applicant's salary. So the multiple is stored as calculator-derived while Kotak's
+FOIR stays a flagged peer estimate (0.55) applied by this model as a prudential check. The note on
+the rule says the calculator is more generous than real underwriting.
 
-## User decisions (2026-10-12)
-- HDFC CIBIL = 720 (user-found; source/url to confirm; keep is_estimate per source)
-- Fibe: rate_min = 18% (use page 'starting from 18%', not calculator slider's 12%); rate_max 30% (calculator slider)
-- KreditBee CIBIL = 670 (user-found)
-## LEFT TO CHECK (after HDFC, Fibe, KreditBee, Moneyview done): Aditya Birla, SMFG/Fullerton, Hero FinCorp, Navi, CASHe (+ BoB amount/location & rate, PNB min income/max age, Poonawalla min income/CIBIL/fee)
+### 3.3 Bajaj Finserv — a FOIR that fits every run to the rupee
 
-## HDFC CIBIL SOURCE (user screenshot, 2026-10-12): https://www.hdfc.bank.in/personal-loan/eligibility-criteria FAQ 'What is the minimum credit score to apply for a Personal Loan?' -> 'you need a minimum credit score of 720 to be eligible for Personal Loans. The credit score varies from bank to bank.' => min_cibil=720, source_type=official, is_estimate=no (replaces estimate 650). Note: FAQ wording is generic ('varies from bank to bank') - flag as 'stated in FAQ'.
+Source: bajajfinserv.in/personal-loan-eligibility-calculator, 11 Oct 2026. Income ₹60,000.
 
-## Aditya Birla Capital (user screenshot, adityabirlacapital.com/loans/personal-finance/personal-loan, 2026-10-12) - SALARIED ONLY
-age min 21 or 23 (by loan type), max 60 (entry age extended up to 62 in some cases); salaried employee at a recognized organization; stable monthly income; CIBIL 700+ 'helps quicker approval and better terms' (soft; 650+ seen on other tab); work experience 6 months in current employment; docs: ID proof, address proof, latest 3 months salary slips, 6 months bank statements showing salary credits, photo.
-## NEW USER DIRECTIVES (2026-10-12)
-1) Scope = SALARIED ONLY (drop self-employed rows from model; keep in notes only if wanted)
-2) Use ONLY official bank/lender website data - remove/replace anything sourced from third parties (paisabazaar etc.); unverifiable -> blank/'not disclosed', not peer estimate?? (ASK user)
-3) Add rule: 'account required with the bank' (salary account/existing relationship) per lender (SBI salary account mandatory; Axis/Kotak/HDFC differ by account)
-4) Restructure data into math-model-friendly wide matrix (one row per lender, numeric columns) like friend's repo, plus keep long evidence table for sources
+| Monthly expenses | Eligible |
+|---:|---:|
+| 33,000 | 5,64,784 |
+| 35,000 | 4,70,654 |
+| 40,000 | 2,35,327 |
+| 42,000 | 1,41,196 |
+| 44,000 | 47,065 |
+| 45,000 | 0 |
 
-## 2026-10-12 update (fees, rate tables, source-type clean-up)
-- Source types reduced to three: official_published, calculator_derived, peer_estimate. All PaisaBazaar rows and every row whose
-  evidence said "copied from classmate's repo, not verified" (33 rows previously labelled official/calculator) are now peer_estimate.
-- Processing fees (all from lender's own pages): HDFC up to Rs 6,500 + GST flat (hdfc.bank.in/personal-loan/interest-rates-and-charges);
-  YES up to 2.5%; Federal FedPremia 2% (retail-loan-charges PDF); Indian Bank Clean Salary Loan 1% max Rs 10,000, Govt/PSU nil;
-  Moneyview "starts at 2%"; PNB 1% + documentation Rs 270/450, defence nil, excl. GST (page updated 01-10-2026);
-  Union 1% min Rs 500 max Rs 7,500, SRLGE (govt) nil (service-charges.pdf sec 12.7); Aditya Birla up to 2.5% (personal-finance page);
-  SBI 1.5% min 1,000 max 15,000, waivers defence 100% / govt 50% / CIBIL>=800 50%. A ChatGPT summary claimed Aditya Birla 4%: not on any ABC page, rejected.
-- Rate tables: Union retail ROI PDF (w.e.f. 08.10.2026, EBLR 8.25%) sec 7.1 (salaried non-govt, 6 CIC bands) and sec 9 SRLGE (govt, by salary-account status)
-  added to rate_tiers.csv. SBI (10.00-15.00%, no bands) and Indian Bank (9.65-10.15%, no bands) publish no CIBIL table.
-- Union min CIBIL set to 650 (rate table prices down to 650-679 and "below 650"; project decision). Union min age 18 stays a peer estimate (PaisaBazaar).
-- Aditya Birla max rate 28% (official, replaces 31.75 estimate). Fibe max rate 30% from its calculator slider (decision of 2026-10-11 now applied).
-- HDFC publishes realised pricing for Q1 FY27: avg IRR 10.89%, min 9.97%, max 24.06%; avg APR 11.18%. Used to validate the rate-band template.
-- Aditya Birla FOIR article: "ideal FOIR is usually below 40%" -> used as the strict bound for ABFL's estimated FOIR, not as the base value.
-- City-tier income floors dropped from scope; city_tier removed from variables.csv.
+**Derived:** eligible = min( 10 × income , 47.0653 × (0.75 × income − expenses) ), where 47.0653 is
+the present-value factor for 10% p.a. over 60 months.
 
-## 2026-10-12 (second pass) — re-checking peer estimates against the lender's own page
+This fits every run exactly, which pins three things at once: **FOIR = 75%**, an assumed rate of 10%
+and an assumed tenure of 60 months, with a **10× salary multiple** cap. Cross-check at a different
+income: ₹30,000 income with ₹20,000 expenses → ₹1,17,663, matching to the rupee.
 
-Earlier the same day, 33 rules labelled `official_published` were relabelled
-`peer_estimate` because their own notes said the value had been copied from a peer
-repo and never verified. Those rows still carried the lender's **own** URL, which is
-misleading: the link looks official while the number is not.
+## 4. Published rate tables
 
-So every one of those rows was re-opened and the lender's page was actually read.
+Two lenders publish the actual CIBIL-band rate table. These are used directly; every other lender is
+priced with the band template (assumption A04).
 
-**Promoted to `official_published` — the value is published on that page:**
+**Punjab National Bank** — retail advances rate page, 11 Oct 2026. RLLR 8.35%.
+
+| Customer group | CIBIL | Floating | Fixed |
+|---|---|---|---|
+| Govt / PSU / private employees | ≥ 800 | 10.85% | 11.85% |
+| Govt / PSU / private employees | 750–799 or no history | 11.85% | 12.85% |
+| Govt / PSU only | 700–749 | 12.85% | 13.85% |
+| Pensioners | ≥ 680 | 10.85% | 11.85% |
+
+This also settles PNB's minimum CIBIL, which is otherwise unstated: **700 for government and PSU
+employees, 750 for private-sector employees**, because the 700–749 band is explicitly not available
+to them. It replaced an estimated 12.15% flat rate.
+
+**Union Bank of India** — retail ROI PDF effective 08 Oct 2026, EBLR 8.25%. Section 7.1 covers
+salaried non-government applicants across six CIC bands; section 9 covers the SRLGE government
+scheme, split by whether the salary account is held with Union. Both are in `data/rate_tiers.csv`.
+
+SBI (10.00–15.00%) and Indian Bank (9.65–10.15%) publish a range but no bands.
+
+**Validation source.** HDFC publishes the rates it actually charged in Q1 FY27: average IRR 10.89%,
+range 9.97%–24.06%, average APR 11.18%. The band template predicts 11.25% for HDFC at CIBIL 750+,
+which is within 0.36 points. A straight line between the published minimum and maximum would have
+said about 17%.
+
+## 5. Findings from lender pages
+
+Everything below was read on the lender's own site on 11–12 October 2026.
+
+**State Bank of India** (Xpress Credit). Government, defence and corporate salaried only, and an SBI
+Salary Package Account is **mandatory**. Minimum service 6 months government and defence, 12 months
+corporate. Age 21–60. Minimum net salary ₹20,000 government and defence, ₹25,000 corporate — this
+replaced an estimated ₹15,000. Amount ₹1 lakh to ₹50 lakh, subject to EMI/NMI ≤ 65% **and** 30× net
+monthly income, whichever is lower. Tenure 6–84 months, closing by retirement. Rate 10.00%–15.00%
+(spread 1.25–6.25% over the two-year MCLR of 8.75%), replacing an estimated 10.3–14.1%. Processing
+fee up to 1.50%, minimum ₹1,000, maximum ₹15,000, plus GST, waived fully for defence and
+Platinum/Rhodium packages and halved for government and for CIBIL ≥ 800. No numeric credit-score
+cut-off is published: the page says "decent credit score as per bank internal policy".
+
+**HDFC Bank.** Minimum credit score **720**, from the eligibility-criteria FAQ, replacing an estimated
+650. The FAQ wording is generic ("varies from bank to bank"), so the rule is flagged as stated in an
+FAQ. Processing fee is a flat cap of **₹6,500 + GST**, which makes HDFC comparatively cheap on large
+loans.
+
+**IDFC FIRST Bank.** Age 21–60, CIBIL 710+, amount ₹50,000 to ₹15 lakh, tenure 9–60 months, zero
+foreclosure charges, processing fee 0–3.5% including GST. A calculator check confirmed the EMI
+formula: ₹1 lakh at 9.99% over 60 months gives ₹2,124. *Conflict:* the footer states a maximum APR of
+35% while the rate slider goes to 38%. Both are stored — nominal maximum 38%, APR maximum 35% — with
+a note.
+
+**IndusInd Bank.** Rate from 10.49% with no published maximum, so the maximum stays an estimate.
+Processing fee up to 3.5% excluding taxes. Tenure 12–84 months, or up to 48 months for the online
+product. Minimum age 21, maximum age at maturity 60 or retirement. Minimum net income ₹25,000 for
+online applications. Two years' employment with one year in the current organisation. The credit
+score is "good, preferably 730 or above" — soft wording, so 730 is stored as a preferred score and
+the hard minimum stays an estimate.
+
+**Bajaj Finance.** Rate from 10%. Amount ₹40,000 to ₹55 lakh. Tenure 12–108 months. **CIBIL 650 and
+above**, confirming 650 and replacing an estimated 685. Two variants: a term loan, and a Flexi loan
+with no prepayment charges.
+
+**Tata Capital.** Amount ₹40,000 to ₹35 lakh, resolving an earlier ₹40,000-versus-₹75,000 conflict in
+favour of ₹40,000. Tenure up to 72 months. Rate 10.99%–33%, where the published maximum of 33%
+replaced an estimated 24%, and APR 10.99%–45%. Salaried eligibility: age 21–58, minimum monthly
+salary ₹20,000, at least one year of work experience, credit score 725+ "improves approval chances"
+(soft). Tata's own eligibility calculator did not load, so its FOIR remains a peer estimate at 0.55
+with no calculator-derived value.
+
+**Bank of Baroda.** FAQ states the credit score "must be above 701", which settles its minimum at 701.
+
+**Moneyview.** A platform rather than a lender: the maximum amount is set by each partner's own
+underwriting, up to ₹10 lakh, with a minimum of ₹5,000. Tenure 3–60 months. Monthly interest
+1.16%–3%, which is 14%–36% a year, now official in place of estimates. APR 17%–45%. The processing
+fee "starts at 2%", so the stored figure is a floor, not a cap.
+
+**Fibe (EarlySalary).** Calculator: amount ₹10,000–₹10 lakh, rate slider 12%–30%, tenure 6–36 months.
+*Conflict:* the slider starts at 12% while the page says "starting from 18%". Decision: use 18% as
+the minimum (the page) and 30% as the maximum (the slider), with the maximum noted as
+calculator-derived rather than policy.
+
+**Aditya Birla Capital.** Salaried only. Age 21 or 23 depending on loan type, maximum 60, extended to
+62 in some cases. Six months in current employment. CIBIL 700+ "helps quicker approval" (soft).
+Maximum rate **28%**, official, replacing an estimated 31.75%. Processing fee up to 2.5%.
+
+**Punjab National Bank** (scheme page). Up to **24× gross monthly salary, maximum ₹20 lakh**. An older
+FAQ page says 20× and ₹15 lakh; the scheme page wins and the conflict is recorded. Processing fee 1%
+plus a documentation fee of ₹270 or ₹450, nil for defence, excluding GST.
+
+**Union Bank of India.** Processing fee 1%, minimum ₹500, maximum ₹7,500; nil under the SRLGE
+government scheme. Minimum CIBIL set to **650**, since the published rate table prices bands down to
+650–679 and treats "below 650" separately. Union's minimum age of 18 is a PaisaBazaar value and
+remains a peer estimate.
+
+**Others.** YES Bank processing fee up to 2.5%. Federal Bank FedPremia 2%, from the retail-loan
+charges PDF, with a minimum net salary of ₹25,000. Indian Bank Clean Salary Loan 1% capped at
+₹10,000, nil for government and PSU borrowers. Poonawalla Fincorp up to ₹50 lakh from 9.99% over
+12–84 months; its minimum income, credit score, fee and FOIR are all still unverified.
+KreditBee minimum CIBIL 670.
+
+## 6. The verification pass — 12 October
+
+An audit found **33 rules labelled `official_published` whose own evidence note said the value had
+been copied from a peer repo and never verified**. They were relabelled `peer_estimate`, and a test
+now fails if a rule is ever marked official while its note says otherwise.
+
+That left a subtler problem: those rows still carried the lender's **own URL**. The link looks
+official while the number is not, which is worse than an honest estimate, because anyone checking the
+link finds nothing. So every one of those pages was opened and read.
+
+**Eight values turned out to be published after all** and are now `official_published`:
 
 | Rule | Value | What the page says |
 |---|---|---|
-| `R_UNION_233` Union max loan | ₹50,00,000 | "up to Rs.50 lakhs", subject to eligibility and repayment capacity |
-| `R_UNION_235` Union max tenure | **84 months (corrected from 60)** | repayment "up to 84 months (7 years)" |
-| `R_FEDERAL_186` Federal max loan | ₹25,00,000 | "Maximum Loan amount of Rs.25 Lakh" |
-| `R_PNB_135` PNB max tenure | 72 months | "maximum 72 (Seventy-Two) equated monthly installments (EMIs)" |
-| `R_LTFINANCE_143` L&T min age | 21 | applicants "aged between 21 and 58 years" |
-| `R_LTFINANCE_144` L&T max age | 58 | same sentence |
-| `R_LTFINANCE_151` L&T min tenure | 12 months | "flexible repayment tenure ranging from 12 to 72 months" |
-| `R_KOTAK_064` Kotak min tenure | 12 months | "Borrow up to Rs.1 crore for 1-6 years" |
+| Union max loan | ₹50,00,000 | "up to Rs.50 lakhs", subject to eligibility and repayment capacity |
+| Union max tenure | **84 months — corrected from 60** | repayment "up to 84 months (7 years)" |
+| Federal max loan | ₹25,00,000 | "Maximum Loan amount of Rs.25 Lakh" |
+| PNB max tenure | 72 months | "maximum 72 (Seventy-Two) equated monthly installments" |
+| L&T minimum age | 21 | applicants "aged between 21 and 58 years" |
+| L&T maximum age | 58 | same sentence |
+| L&T minimum tenure | 12 months | "tenure ranging from 12 to 72 months" |
+| Kotak minimum tenure | 12 months | "Borrow up to Rs.1 crore for 1-6 years" |
 
-**Reclassified `calculator_derived`:** `R_LTFINANCE_149` L&T min loan ₹50,000 — the
-lower bound of the loan-amount field in L&T's own EMI calculator, not a stated rule.
+L&T's ₹50,000 minimum loan was reclassified `calculator_derived`: it is the lower bound of the
+loan-amount field in L&T's own EMI calculator, not a stated rule.
 
-**Still `peer_estimate` (46 rules).** The lender's page was read and the value is
-simply not there. Their notes now say which page was checked and that the URL is the
-page checked, not a source for the number. The pattern is consistent: no lender in
-this set publishes its **FOIR cap** or its **salary multiple**, which is why those
-remain the model's largest unknown. Also not published: Axis and L&T minimum CIBIL,
-SBI minimum CIBIL ("a decent Credit score, as per Bank's internal policy"), Bajaj and
-IDFC minimum income, Kotak maximum rate, Indian Bank maximum age.
+**One value was wrong, not merely mislabelled.** Union's maximum tenure was 60 months, inherited from
+the peer repo; the bank's own page says 84. Correcting it changed one expected test outcome — for
+profile P19, a government employee with CIBIL 810, the best option moves from Axis to Union at 9.25%
+APR with the fee waived. Union always had the cheaper rate; it now also carries one fewer estimated
+deciding field, so the ranking penalty (A09) no longer pushes it behind Axis.
 
-**One value was wrong, not just mislabelled.** Union's maximum tenure was 60 months,
-inherited from the peer repo; the bank's own page says 84. Correcting it changed one
-expected test outcome: for P19 (government employee, CIBIL 810) the best option moves
-from Axis to Union Bank at 9.25% APR with the processing fee waived. Union was always
-the cheaper rate; it now also carries one fewer estimated deciding field, so the
-A09 ranking penalty no longer pushes it behind Axis.
+**The remaining 46 rules stay peer estimates.** The page was read and the value is simply not there.
+Each note now records which page was checked, so the URL is not mistaken for a source for the number.
 
-Source-type totals after this pass: **273 official_published, 10 calculator_derived,
-85 peer_estimate** (was 265 / 9 / 94).
+Totals after this pass: **273 official, 10 calculator-derived, 85 peer estimates**, from 265 / 9 / 94.
+
+## 7. Conflicts, and how each was resolved
+
+| Conflict | Resolution |
+|---|---|
+| Axis calculator caps at ₹15 lakh; product page says ₹50 lakh | Both stored; calculator ceiling noted on the rule |
+| IDFC maximum APR 35% vs rate slider 38% | Both stored — nominal max 38%, APR max 35% |
+| Fibe slider starts at 12%; page says "from 18%" | Page wins for the minimum; slider used for the maximum |
+| PNB scheme page 24× / ₹20 lakh vs FAQ 20× / ₹15 lakh | Scheme page wins |
+| Tata: 1 year total experience vs an earlier 1 year current + 2 years total | Eligibility table wins (1 year total) |
+| Federal: features say 60 months, "Other Loans" says 48 | 60 months, from the features section |
+| Union: peer repo 60 months vs bank page 84 | Bank page wins; value corrected |
+| L&T minimum income: blog says ₹25,000 tier-1 / ₹15,000 tier-2 | Stricter value stored, conflict flagged |
+| Aditya Birla fee: a ChatGPT summary claimed 4% | **Rejected** — not on any Aditya Birla page; the official 2.5% used |
+
+## 8. Decisions taken
+
+**11 October.** Fibe's maximum rate set to 30% from the calculator slider. HDFC minimum CIBIL 720
+and KreditBee 670 adopted from user-found sources.
+
+**12 October.**
+- Scope narrowed to **salaried only**; self-employed rows dropped from the model.
+- Source types reduced to exactly three, and all PaisaBazaar-derived values moved to `peer_estimate`.
+- An "account required with the bank" rule added per lender, since SBI makes its salary account
+  mandatory while Axis, Kotak and HDFC merely price it differently.
+- Data restructured into a wide matrix, one row per lender, for the model, with the long evidence
+  table kept as the source of truth.
+- **City-tier income floors dropped** from scope; `city_tier` removed from `variables.csv`.
+- Aditya Birla's FOIR article ("ideal FOIR is usually below 40%") used as the **strict bound** for
+  ABFL's estimated FOIR, not as its base value.
+
+## 9. Still unpublished
+
+These are the gaps that remain, and the reason the model measures its own uncertainty rather than
+hiding it. Section 8.7 of the README quantifies the effect: moving every estimate from its strict to
+its lenient bound changes the answer for 76% of applicants.
+
+- **FOIR caps and salary multiples** — not published by any of the 20 lenders. Recovered by
+  calculator for Axis, Kotak and Bajaj only; estimated for the other 17.
+- **Minimum credit score** — Axis, L&T and SBI publish none. SBI says only "a decent Credit score, as
+  per Bank's internal policy".
+- **Minimum income** — Bajaj and IDFC publish none.
+- **Maximum rate** — Kotak and IndusInd publish a starting rate only.
+- **Maximum age** — Indian Bank publishes a minimum entry age of 21 and no maximum.
+- **Poonawalla Fincorp** — minimum income, credit score, fee and FOIR all unverified.
+
+Researching FOIR caps and salary multiples for HDFC, ICICI and IDFC would remove the largest single
+source of uncertainty in the model.
