@@ -29,6 +29,7 @@ Enter a salaried applicant's details and the app checks all 20 lenders at once. 
 12. [Limits and what's next](#12-limits-and-whats-next)
 13. [Repository structure](#13-repository-structure)
 14. [How to run](#14-how-to-run)
+15. [System architecture](#15-system-architecture)
 
 ---
 
@@ -282,6 +283,7 @@ From `python scripts/simulate.py`, which runs **10,000 synthetic salaried applic
 ```
 .
 ├── README.md
+├── .github/workflows/pages.yml    ← deploys webui/ to GitHub Pages on every push to main
 ├── app.py                         ← serves the web app + POST /api/evaluate (Python model)
 ├── data/
 │   ├── variables.csv              ← input datapoint dictionary
@@ -305,7 +307,8 @@ From `python scripts/simulate.py`, which runs **10,000 synthetic salaried applic
 │   ├── test_parity.py             ← Python vs browser engine on 415 profiles
 │   └── parity_runner.js
 └── docs/
-    ├── research_log.md            ← research notes, calculator runs, every data decision
+    ├── ARCHITECTURE.md            ← how the data, model and web app fit together (diagrams)
+    ├── research_log.md            ← every source, calculator run, conflict and data decision
     ├── insights.md / insights.json
 ```
 
@@ -342,3 +345,7 @@ print(r["uncertainty"]["approvals"]); print([p["text"] for p in r["path_to_yes"]
 | `python` not recognised | Use `python3`, or `py` on Windows |
 | Page looks unstyled | Keep all files in `webui/` together; fonts load from Google Fonts and fall back to system fonts offline |
 | Data changes don't appear | `python scripts/build_all.py` |
+
+## 15. System architecture
+
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) shows how the parts fit together: the flow from public sources to the rules CSV to the generated files, the eight-step decision pipeline, how the Python and browser engines are kept identical, and how deployment works.
