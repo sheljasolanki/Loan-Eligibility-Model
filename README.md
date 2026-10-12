@@ -9,8 +9,6 @@
 
 Enter a salaried applicant's details and the app checks all 20 lenders at once. It shows who approves, the best option by true cost (APR including fees), how confident each approval is, and what to change to unlock more lenders.
 
-The whole eligibility engine runs in your browser, so there is no server and nothing you enter is sent anywhere.
-
 **Important:** this project gives an **indicative screening against publicly published rules**. It is **not** a bank approval, a loan offer, an approval probability or a personalised interest rate. Banks apply internal underwriting that is not public.
 
 ---
