@@ -34,13 +34,13 @@
    "rule": "cibil",
    "label": "credit score",
    "share_of_checks": 0.3427,
-   "main_blocker_share": 0.6977
+   "main_blocker_share": 0.6967
   },
   {
    "rule": "income",
    "label": "income",
    "share_of_checks": 0.2194,
-   "main_blocker_share": 0.2936
+   "main_blocker_share": 0.2946
   },
   {
    "rule": "employer",
@@ -96,7 +96,7 @@
    "approval_rate": 0.7457,
    "median_apr": 10.55,
    "median_max_amount": 432000,
-   "n_estimated": 11
+   "n_estimated": 9
   },
   {
    "lender_id": "bajaj",
@@ -195,7 +195,7 @@
    "approval_rate": 0.3679,
    "median_apr": 10.81,
    "median_max_amount": 1130000,
-   "n_estimated": 8
+   "n_estimated": 4
   },
   {
    "lender_id": "pnb",
@@ -204,7 +204,7 @@
    "approval_rate": 0.3358,
    "median_apr": 12.54,
    "median_max_amount": 878500,
-   "n_estimated": 8
+   "n_estimated": 7
   },
   {
    "lender_id": "tata",
@@ -222,7 +222,7 @@
    "approval_rate": 0.2803,
    "median_apr": 12.83,
    "median_max_amount": 572000,
-   "n_estimated": 8
+   "n_estimated": 7
   },
   {
    "lender_id": "indusind",
@@ -249,7 +249,7 @@
    "approval_rate": 0.1127,
    "median_apr": 15.25,
    "median_max_amount": 655000,
-   "n_estimated": 3
+   "n_estimated": 2
   },
   {
    "lender_id": "sbi",
@@ -285,10 +285,10 @@
   "median_saving_inr": 1187
  },
  "uncertainty": {
-  "avg_strict": 6.62,
+  "avg_strict": 6.63,
   "avg_base": 8.27,
   "avg_lenient": 9.57,
-  "share_profiles_affected": 0.7578
+  "share_profiles_affected": 0.7567
  },
  "rate_validation": {
   "hdfc_model_median_rate_cibil_750plus": 11.25,
