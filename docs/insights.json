@@ -1,0 +1,298 @@
+{
+ "population": {
+  "n": 10000,
+  "seed": 2026,
+  "note": "synthetic salaried applicants; distributions are assumptions (A10), not real data"
+ },
+ "approved_by_any": 0.8968,
+ "lenders_per_applicant": {
+  "0": 1032,
+  "1": 370,
+  "2": 822,
+  "3": 855,
+  "4": 888,
+  "5": 967,
+  "6": 291,
+  "7": 158,
+  "8": 502,
+  "9": 253,
+  "10": 185,
+  "11": 210,
+  "12": 300,
+  "13": 281,
+  "14": 323,
+  "15": 312,
+  "16": 370,
+  "17": 562,
+  "18": 661,
+  "19": 595,
+  "20": 63
+ },
+ "median_lenders": 6.0,
+ "rule_failures": [
+  {
+   "rule": "cibil",
+   "label": "credit score",
+   "share_of_checks": 0.3427,
+   "main_blocker_share": 0.6977
+  },
+  {
+   "rule": "income",
+   "label": "income",
+   "share_of_checks": 0.2194,
+   "main_blocker_share": 0.2936
+  },
+  {
+   "rule": "employer",
+   "label": "employer type",
+   "share_of_checks": 0.0769,
+   "main_blocker_share": 0.0
+  },
+  {
+   "rule": "account",
+   "label": "salary-account rule",
+   "share_of_checks": 0.0447,
+   "main_blocker_share": 0.0
+  },
+  {
+   "rule": "emi",
+   "label": "existing EMIs",
+   "share_of_checks": 0.0373,
+   "main_blocker_share": 0.0087
+  },
+  {
+   "rule": "job",
+   "label": "time in current job",
+   "share_of_checks": 0.0249,
+   "main_blocker_share": 0.0
+  },
+  {
+   "rule": "experience",
+   "label": "work experience",
+   "share_of_checks": 0.0088,
+   "main_blocker_share": 0.0
+  },
+  {
+   "rule": "age",
+   "label": "age",
+   "share_of_checks": 0.0009,
+   "main_blocker_share": 0.0
+  }
+ ],
+ "lenders": [
+  {
+   "lender_id": "fibe",
+   "lender": "Fibe (EarlySalary)",
+   "category": "fintech",
+   "approval_rate": 0.7553,
+   "median_apr": 22.64,
+   "median_max_amount": 474000,
+   "n_estimated": 4
+  },
+  {
+   "lender_id": "union",
+   "lender": "Union Bank of India",
+   "category": "public_bank",
+   "approval_rate": 0.7457,
+   "median_apr": 10.55,
+   "median_max_amount": 432000,
+   "n_estimated": 11
+  },
+  {
+   "lender_id": "bajaj",
+   "lender": "Bajaj Finance",
+   "category": "nbfc",
+   "approval_rate": 0.6911,
+   "median_apr": 16.85,
+   "median_max_amount": 386000,
+   "n_estimated": 3
+  },
+  {
+   "lender_id": "kreditbee",
+   "lender": "KreditBee",
+   "category": "fintech",
+   "approval_rate": 0.668,
+   "median_apr": 18.36,
+   "median_max_amount": 294000,
+   "n_estimated": 3
+  },
+  {
+   "lender_id": "moneyview",
+   "lender": "Moneyview",
+   "category": "fintech",
+   "approval_rate": 0.5274,
+   "median_apr": 20.42,
+   "median_max_amount": 428000,
+   "n_estimated": 4
+  },
+  {
+   "lender_id": "abfl",
+   "lender": "Aditya Birla Capital",
+   "category": "nbfc",
+   "approval_rate": 0.4918,
+   "median_apr": 14.62,
+   "median_max_amount": 612000,
+   "n_estimated": 4
+  },
+  {
+   "lender_id": "indianbank",
+   "lender": "Indian Bank",
+   "category": "public_bank",
+   "approval_rate": 0.4846,
+   "median_apr": 10.28,
+   "median_max_amount": 701500,
+   "n_estimated": 5
+  },
+  {
+   "lender_id": "idfc",
+   "lender": "IDFC FIRST Bank",
+   "category": "private_bank",
+   "approval_rate": 0.4738,
+   "median_apr": 14.74,
+   "median_max_amount": 309000,
+   "n_estimated": 5
+  },
+  {
+   "lender_id": "axis",
+   "lender": "Axis Bank",
+   "category": "private_bank",
+   "approval_rate": 0.3906,
+   "median_apr": 11.55,
+   "median_max_amount": 540000,
+   "n_estimated": 2
+  },
+  {
+   "lender_id": "yes",
+   "lender": "YES BANK",
+   "category": "private_bank",
+   "approval_rate": 0.3812,
+   "median_apr": 13.85,
+   "median_max_amount": 589000,
+   "n_estimated": 7
+  },
+  {
+   "lender_id": "icici",
+   "lender": "ICICI Bank",
+   "category": "private_bank",
+   "approval_rate": 0.3726,
+   "median_apr": 12.24,
+   "median_max_amount": 788000,
+   "n_estimated": 3
+  },
+  {
+   "lender_id": "poonawalla",
+   "lender": "Poonawalla Fincorp",
+   "category": "nbfc",
+   "approval_rate": 0.3701,
+   "median_apr": 15.35,
+   "median_max_amount": 676000,
+   "n_estimated": 4
+  },
+  {
+   "lender_id": "ltfinance",
+   "lender": "L&T Finance",
+   "category": "nbfc",
+   "approval_rate": 0.3679,
+   "median_apr": 10.81,
+   "median_max_amount": 1130000,
+   "n_estimated": 8
+  },
+  {
+   "lender_id": "pnb",
+   "lender": "Punjab National Bank",
+   "category": "public_bank",
+   "approval_rate": 0.3358,
+   "median_apr": 12.54,
+   "median_max_amount": 878500,
+   "n_estimated": 8
+  },
+  {
+   "lender_id": "tata",
+   "lender": "Tata Capital",
+   "category": "nbfc",
+   "approval_rate": 0.3026,
+   "median_apr": 16.3,
+   "median_max_amount": 550500,
+   "n_estimated": 3
+  },
+  {
+   "lender_id": "federal",
+   "lender": "Federal Bank",
+   "category": "private_bank",
+   "approval_rate": 0.2803,
+   "median_apr": 12.83,
+   "median_max_amount": 572000,
+   "n_estimated": 8
+  },
+  {
+   "lender_id": "indusind",
+   "lender": "IndusInd Bank",
+   "category": "private_bank",
+   "approval_rate": 0.2609,
+   "median_apr": 13.42,
+   "median_max_amount": 595000,
+   "n_estimated": 4
+  },
+  {
+   "lender_id": "hdfc",
+   "lender": "HDFC Bank",
+   "category": "private_bank",
+   "approval_rate": 0.2046,
+   "median_apr": 13.63,
+   "median_max_amount": 581000,
+   "n_estimated": 3
+  },
+  {
+   "lender_id": "kotak",
+   "lender": "Kotak Mahindra Bank",
+   "category": "private_bank",
+   "approval_rate": 0.1127,
+   "median_apr": 15.25,
+   "median_max_amount": 655000,
+   "n_estimated": 3
+  },
+  {
+   "lender_id": "sbi",
+   "lender": "State Bank of India",
+   "category": "public_bank",
+   "approval_rate": 0.0493,
+   "median_apr": 11.98,
+   "median_max_amount": 796000,
+   "n_estimated": 2
+  }
+ ],
+ "by_category": {
+  "fintech": 0.6502,
+  "nbfc": 0.4447,
+  "public_bank": 0.4038,
+  "private_bank": 0.3096
+ },
+ "confidence_mix": {
+  "borderline": 0.3651,
+  "risky": 0.0714,
+  "strong": 0.5635
+ },
+ "cibil_plus_50": {
+  "applicants": 5119,
+  "avg_extra_lenders": 3.95
+ },
+ "sbi_account": {
+  "applicants": 8950,
+  "share_unlocking_sbi": 0.4692
+ },
+ "fees_change_best": {
+  "share": 0.0578,
+  "median_saving_inr": 1187
+ },
+ "uncertainty": {
+  "avg_strict": 6.62,
+  "avg_base": 8.27,
+  "avg_lenient": 9.57,
+  "share_profiles_affected": 0.7578
+ },
+ "rate_validation": {
+  "hdfc_model_median_rate_cibil_750plus": 11.25,
+  "hdfc_published_avg_irr_q1_fy27": 10.89,
+  "source": "hdfc.bank.in/personal-loan/interest-rates-and-charges (Apr-Jun 2026: min 9.97%, avg 10.89%, max 24.06%)"
+ }
+}

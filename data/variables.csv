@@ -1,0 +1,16 @@
+name,unit,type,description,source,required,used_by_rules
+age,years,int,Applicant age in completed years at application; age at maturity = age + tenure/12,applicant,true,min_age; max_age_at_application; max_age_at_maturity
+citizenship,category,enum (indian_resident|other),Indian resident citizen required by every lender in the matrix,applicant,true,eligibility gate
+employment_type,category,enum (salaried),Scope is salaried only,applicant,true,scope gate
+employer_category,category,enum (govt|psu|defence|mnc|listed|public_ltd|pvt_ltd|small_unlisted),Employer class; lenders accept or price by it,document (salary slip / offer letter),true,employer_types_accepted; fee waivers (SBI/Indian Bank/Union/PNB); Union SRLGE and PNB rate tables
+net_monthly_income,INR/month,float,Net take-home salary credited to bank,document (salary slip + bank statement),true,min_net_monthly_income; salary multiples (net); FOIR
+gross_monthly_income,INR/month,float,Gross salary before deductions; PNB and Indian Bank multiples use gross (if missing the model assumes gross = net / 0.8 and flags it),document (salary slip / Form 16),false,salary_multiple_cap when basis = gross
+work_experience_total,months,int,Total work experience across employers,document (experience letters / resume),true,min_total_experience
+months_in_current_job,months,int,Continuous service with current employer,document (salary slip / appointment letter),true,min_current_job_tenure
+cibil_score,points,int (-1 = no history; else 300-900),Bureau score,bureau,true,min_cibil_score; rate band (PNB and Union published tables; other lenders use the band template)
+existing_emi_total,INR/month,float,Sum of EMIs and obligations on existing loans,bureau (credit report),true,foir_cap; Axis tiered obligation rule; Kotak free-income multiple (credit-card dues are added on top)
+credit_card_outstanding,INR,float,Total revolving balance on credit cards; the model counts 5% of it as a monthly obligation (assumption A03),bureau (credit report),false,foir_cap; free-income multiple
+salary_account_banks,list of lender_id,list,Banks where the applicant holds the salary account,document (bank statement),true,account_requirement (SBI mandatory; Axis and Kotak lower the income floor); Union SRLGE rate sub-table
+salary_credited_via_bank,boolean,boolean,Salary is paid into a bank account (cash salary is rejected),document (bank statement),true,"cash salary rejected for all lenders (HDFC, SBI, Moneyview state it)"
+requested_amount,INR,float,Amount the applicant wants,applicant,false,best-option selection
+requested_tenure,months,int,Tenure the applicant prefers; capped by lender max and age at maturity,applicant,false,tenure used for EMI and capacity

@@ -1,0 +1,365 @@
+[
+ {
+  "name": "P01 Typical private-sector employee",
+  "age": 28,
+  "citizenship": "indian_resident",
+  "employment_type": "salaried",
+  "employer_category": "pvt_ltd",
+  "net_monthly_income": 60000,
+  "work_experience_total": 60,
+  "months_in_current_job": 30,
+  "cibil_score": 780,
+  "existing_emi_total": 5000,
+  "salary_account_banks": [],
+  "salary_credited_via_bank": true,
+  "requested_amount": 500000,
+  "requested_tenure": 60,
+  "expect": {
+   "eligible": true,
+   "approvals": 18,
+   "tier": "green",
+   "best": "indianbank"
+  }
+ },
+ {
+  "name": "P02 Same profile, holds an SBI salary account",
+  "age": 28,
+  "employer_category": "pvt_ltd",
+  "net_monthly_income": 60000,
+  "work_experience_total": 60,
+  "months_in_current_job": 30,
+  "cibil_score": 780,
+  "existing_emi_total": 5000,
+  "salary_account_banks": [
+   "sbi"
+  ],
+  "requested_amount": 500000,
+  "requested_tenure": 60,
+  "expect": {
+   "eligible": true,
+   "approvals": 19,
+   "tier": "green",
+   "best": "indianbank"
+  }
+ },
+ {
+  "name": "P03 EDGE low CIBIL (610)",
+  "age": 30,
+  "employer_category": "pvt_ltd",
+  "net_monthly_income": 55000,
+  "work_experience_total": 72,
+  "months_in_current_job": 36,
+  "cibil_score": 610,
+  "existing_emi_total": 4000,
+  "salary_account_banks": [],
+  "requested_amount": 300000,
+  "expect": {
+   "eligible": false,
+   "approvals": 0,
+   "tier": "red",
+   "best": null
+  }
+ },
+ {
+  "name": "P04 EDGE high existing EMI (68% of income)",
+  "age": 35,
+  "employer_category": "mnc",
+  "net_monthly_income": 80000,
+  "work_experience_total": 120,
+  "months_in_current_job": 48,
+  "cibil_score": 760,
+  "existing_emi_total": 54000,
+  "salary_account_banks": [],
+  "requested_amount": 300000,
+  "expect": {
+   "eligible": true,
+   "approvals": 6,
+   "tier": "yellow",
+   "best": "indianbank"
+  }
+ },
+ {
+  "name": "P05 EDGE new job (3 months)",
+  "age": 26,
+  "employer_category": "pvt_ltd",
+  "net_monthly_income": 45000,
+  "work_experience_total": 36,
+  "months_in_current_job": 3,
+  "cibil_score": 740,
+  "existing_emi_total": 0,
+  "salary_account_banks": [],
+  "requested_amount": 200000,
+  "expect": {
+   "eligible": true,
+   "approvals": 12,
+   "tier": "yellow",
+   "best": "indianbank"
+  }
+ },
+ {
+  "name": "P06 EDGE age near limit (57, government)",
+  "age": 57,
+  "employer_category": "govt",
+  "net_monthly_income": 120000,
+  "work_experience_total": 400,
+  "months_in_current_job": 300,
+  "cibil_score": 790,
+  "existing_emi_total": 10000,
+  "salary_account_banks": [
+   "sbi"
+  ],
+  "requested_amount": 1000000,
+  "expect": {
+   "eligible": true,
+   "approvals": 16,
+   "tier": "yellow",
+   "best": "union"
+  }
+ },
+ {
+  "name": "P07 EDGE age 59, wants a large loan",
+  "age": 59,
+  "employer_category": "psu",
+  "net_monthly_income": 150000,
+  "work_experience_total": 420,
+  "months_in_current_job": 330,
+  "cibil_score": 800,
+  "existing_emi_total": 0,
+  "salary_account_banks": [],
+  "requested_amount": 2000000,
+  "expect": {
+   "eligible": true,
+   "approvals": 9,
+   "tier": "yellow",
+   "best": "bajaj"
+  }
+ },
+ {
+  "name": "P08 EDGE too young (20, fresher)",
+  "age": 20,
+  "employer_category": "pvt_ltd",
+  "net_monthly_income": 30000,
+  "work_experience_total": 4,
+  "months_in_current_job": 4,
+  "cibil_score": null,
+  "existing_emi_total": 0,
+  "salary_account_banks": [],
+  "requested_amount": 100000,
+  "expect": {
+   "eligible": true,
+   "approvals": 2,
+   "tier": "yellow",
+   "best": "union"
+  }
+ },
+ {
+  "name": "P09 EDGE no credit history (25y, 40k)",
+  "age": 25,
+  "employer_category": "pvt_ltd",
+  "net_monthly_income": 40000,
+  "work_experience_total": 24,
+  "months_in_current_job": 18,
+  "cibil_score": null,
+  "existing_emi_total": 0,
+  "salary_account_banks": [],
+  "requested_amount": 150000,
+  "expect": {
+   "eligible": true,
+   "approvals": 3,
+   "tier": "yellow",
+   "best": "union"
+  }
+ },
+ {
+  "name": "P10 EDGE income below almost every floor (18k)",
+  "age": 32,
+  "employer_category": "pvt_ltd",
+  "net_monthly_income": 18000,
+  "work_experience_total": 84,
+  "months_in_current_job": 40,
+  "cibil_score": 720,
+  "existing_emi_total": 2000,
+  "salary_account_banks": [],
+  "requested_amount": 100000,
+  "expect": {
+   "eligible": true,
+   "approvals": 4,
+   "tier": "yellow",
+   "best": "indianbank"
+  }
+ },
+ {
+  "name": "P11 Axis account holder, 20k income",
+  "age": 29,
+  "employer_category": "pvt_ltd",
+  "net_monthly_income": 20000,
+  "work_experience_total": 48,
+  "months_in_current_job": 24,
+  "cibil_score": 730,
+  "existing_emi_total": 0,
+  "salary_account_banks": [
+   "axis"
+  ],
+  "requested_amount": 200000,
+  "expect": {
+   "eligible": true,
+   "approvals": 9,
+   "tier": "yellow",
+   "best": "indianbank"
+  }
+ },
+ {
+  "name": "P12 Same 20k income, no Axis account",
+  "age": 29,
+  "employer_category": "pvt_ltd",
+  "net_monthly_income": 20000,
+  "work_experience_total": 48,
+  "months_in_current_job": 24,
+  "cibil_score": 730,
+  "existing_emi_total": 0,
+  "salary_account_banks": [],
+  "requested_amount": 200000,
+  "expect": {
+   "eligible": true,
+   "approvals": 8,
+   "tier": "yellow",
+   "best": "indianbank"
+  }
+ },
+ {
+  "name": "P13 High earner, 3L/month, wants 40L",
+  "age": 40,
+  "employer_category": "mnc",
+  "net_monthly_income": 300000,
+  "work_experience_total": 216,
+  "months_in_current_job": 96,
+  "cibil_score": 820,
+  "existing_emi_total": 20000,
+  "salary_account_banks": [
+   "hdfc",
+   "kotak"
+  ],
+  "requested_amount": 4000000,
+  "expect": {
+   "eligible": true,
+   "approvals": 19,
+   "tier": "green",
+   "best": "axis"
+  }
+ },
+ {
+  "name": "P14 EDGE borderline: CIBIL 700, EMIs 62% of income",
+  "age": 33,
+  "employer_category": "pvt_ltd",
+  "net_monthly_income": 70000,
+  "work_experience_total": 96,
+  "months_in_current_job": 24,
+  "cibil_score": 700,
+  "existing_emi_total": 43400,
+  "salary_account_banks": [],
+  "requested_amount": 200000,
+  "expect": {
+   "eligible": true,
+   "approvals": 8,
+   "tier": "yellow",
+   "best": "indianbank"
+  }
+ },
+ {
+  "name": "P15 EDGE small unlisted employer",
+  "age": 31,
+  "employer_category": "small_unlisted",
+  "net_monthly_income": 50000,
+  "work_experience_total": 60,
+  "months_in_current_job": 24,
+  "cibil_score": 720,
+  "existing_emi_total": 3000,
+  "salary_account_banks": [],
+  "requested_amount": 200000,
+  "expect": {
+   "eligible": true,
+   "approvals": 9,
+   "tier": "green",
+   "best": "union"
+  }
+ },
+ {
+  "name": "P16 EDGE self-employed (out of scope)",
+  "age": 38,
+  "employment_type": "self_employed",
+  "employer_category": "small_unlisted",
+  "net_monthly_income": 90000,
+  "work_experience_total": 120,
+  "months_in_current_job": 120,
+  "cibil_score": 760,
+  "existing_emi_total": 0,
+  "salary_account_banks": [],
+  "requested_amount": 500000,
+  "expect": {
+   "eligible": false,
+   "approvals": 0,
+   "tier": "red",
+   "best": null
+  }
+ },
+ {
+  "name": "P17 EDGE no EMIs but Rs 4L credit-card balance",
+  "age": 31,
+  "employer_category": "pvt_ltd",
+  "net_monthly_income": 50000,
+  "work_experience_total": 84,
+  "months_in_current_job": 36,
+  "cibil_score": 745,
+  "existing_emi_total": 0,
+  "credit_card_outstanding": 400000,
+  "salary_account_banks": [],
+  "requested_amount": 400000,
+  "requested_tenure": 60,
+  "expect": {
+   "eligible": true,
+   "approvals": 17,
+   "tier": "yellow",
+   "best": "indianbank"
+  }
+ },
+ {
+  "name": "P18 EDGE borderline CIBIL 705",
+  "age": 29,
+  "employer_category": "mnc",
+  "net_monthly_income": 65000,
+  "work_experience_total": 72,
+  "months_in_current_job": 30,
+  "cibil_score": 705,
+  "existing_emi_total": 6000,
+  "salary_account_banks": [],
+  "requested_amount": 400000,
+  "requested_tenure": 48,
+  "expect": {
+   "eligible": true,
+   "approvals": 12,
+   "tier": "yellow",
+   "best": "indianbank"
+  }
+ },
+ {
+  "name": "P19 Government employee, CIBIL 810 (fee waivers)",
+  "age": 45,
+  "employer_category": "govt",
+  "net_monthly_income": 90000,
+  "work_experience_total": 240,
+  "months_in_current_job": 200,
+  "cibil_score": 810,
+  "existing_emi_total": 8000,
+  "salary_account_banks": [
+   "sbi"
+  ],
+  "requested_amount": 800000,
+  "requested_tenure": 60,
+  "expect": {
+   "eligible": true,
+   "approvals": 19,
+   "tier": "green",
+   "best": "axis"
+  }
+ }
+]

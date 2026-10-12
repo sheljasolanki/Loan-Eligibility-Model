@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LoanLens India</title>
+<meta name="description" content="Rule-based personal-loan eligibility across 20 Indian lenders, built only from their published rules." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%238fd14f'/%3E%3Ctext x='16' y='23' font-size='19' text-anchor='middle' font-family='sans-serif' font-weight='700' fill='%23071004'%3E%E2%82%B9%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+<div class="bg-glow" aria-hidden="true"></div>
+<div class="bg-grain" aria-hidden="true"></div>
+<div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+
+<nav class="nav" aria-label="Main">
+  <div class="nav-in">
+    <a class="logo" href="#check" data-go="check"><i>₹</i>LoanLens</a>
+    <div class="nav-links" id="navLinks">
+      <span class="nav-pill" id="navPill"></span>
+      <a href="#check" data-go="check">Check</a>
+      <a href="#lenders" data-go="lenders">Lenders</a>
+      <a href="#insights" data-go="insights">Insights</a>
+      <a href="#method" data-go="method">Method</a>
+    </div>
+    <span class="nav-tag mono">rules read 11–12 Oct 2026</span>
+  </div>
+</nav>
+
+<main>
+  <!-- ======================================================= CHECK -->
+  <section class="page" id="page-check">
+    <header class="hero">
+      <span class="eyebrow"><b></b><span id="eyebrowText">Rules read from 20 lenders' own websites</span></span>
+      <h1><span class="w">Will</span> <span class="w">you</span> <span class="w">get</span> <span class="w">the</span><br /><span class="w serif">loan?</span></h1>
+      <p class="sub">A transparent, rule-based engine that screens a salaried applicant against India's top personal-loan lenders, then shows who says yes, how much, what it really costs, and exactly why.</p>
+      <div class="stats" id="heroStats"></div>
+      <div class="marquee" aria-hidden="true"><div class="track" id="marquee"></div></div>
+    </header>
+
+    <div class="studio reveal" id="studio">
+      <div class="card form-card">
+        <div class="form-top">
+          <div class="label">Your profile · step <span id="stepNo">1</span> of 4</div>
+          <label class="preset">
+            <span class="sr-only">Load a sample profile</span>
+            <select id="preset"><option value="">Try a sample profile</option></select>
+          </label>
+        </div>
+        <div class="steps" id="steps" role="tablist"></div>
+
+        <div class="pane on" data-pane="0">
+          <h3>About you</h3>
+          <p class="hint">Age decides how long you can repay before the lender's age limit.</p>
+          <div class="field" data-field="age"></div>
+          <div class="label">Employer type</div>
+          <div class="chips" id="employer"></div>
+        </div>
+        <div class="pane" data-pane="1">
+          <h3>Income and obligations</h3>
+          <p class="hint">Lenders cap how much of your salary can go to EMIs (FOIR).</p>
+          <div class="field" data-field="net_monthly_income"></div>
+          <div class="field" data-field="existing_emi_total"></div>
+          <div class="field" data-field="credit_card_outstanding"></div>
+          <div class="two">
+            <div class="field" data-field="work_experience_total"></div>
+            <div class="field" data-field="months_in_current_job"></div>
+          </div>
+        </div>
+        <div class="pane" data-pane="2">
+          <h3>Credit score</h3>
+          <p class="hint">Drag it and watch the lender scan on the right react.</p>
+          <div class="gauge">
+            <svg viewBox="0 0 260 160" role="img" aria-label="CIBIL score dial">
+              <defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#e5675f" /><stop offset=".55" stop-color="#e2c15a" /><stop offset="1" stop-color="#8fd14f" /></linearGradient></defs>
+              <path d="M20 140 A110 110 0 0 1 240 140" class="g-track" />
+              <path id="gArc" d="M20 140 A110 110 0 0 1 240 140" class="g-arc" pathLength="100" stroke-dasharray="0 100" />
+              <circle id="gKnob" r="8" cx="20" cy="140" class="g-knob" />
+              <text x="130" y="118" text-anchor="middle" class="g-score" id="gScore">760</text>
+              <text x="130" y="146" text-anchor="middle" class="g-band" id="gBand">EXCELLENT</text>
+            </svg>
+          </div>
+          <div class="field bare" data-field="cibil_score"></div>
+          <button type="button" class="chip" id="noHistory" aria-pressed="false">I have no credit history</button>
+        </div>
+        <div class="pane" data-pane="3">
+          <h3>The loan you want</h3>
+          <p class="hint">We'll show who can fund it, what it really costs, and what would change a no.</p>
+          <div class="field" data-field="requested_amount"></div>
+          <div class="field" data-field="requested_tenure"></div>
+          <div class="label">Salary account held at <span class="muted">(optional)</span></div>
+          <div class="chips" id="banks"></div>
+        </div>
+
+        <div class="form-nav">
+          <button type="button" class="btn ghost" id="prevBtn">← Back</button>
+          <button type="button" class="btn primary" id="nextBtn">Continue →</button>
+        </div>
+      </div>
+
+      <aside class="card live">
+        <div class="label">Live preview</div>
+        <h4>Your EMI load at a typical 12%</h4>
+        <div class="emi">
+          <svg class="ring" viewBox="0 0 132 132" aria-hidden="true">
+            <circle cx="66" cy="66" r="54" class="ring-track" />
+            <circle id="ringOld" cx="66" cy="66" r="54" class="ring-old" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 66 66)" />
+            <circle id="ringNew" cx="66" cy="66" r="54" class="ring-new" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 66 66)" />
+            <text x="66" y="64" text-anchor="middle" class="ring-pct mono" id="ringPct">0%</text>
+            <text x="66" y="82" text-anchor="middle" class="ring-cap">OF SALARY</text>
+          </svg>
+          <div class="kv">
+            <div><span><i class="sw old"></i>Existing EMIs + cards</span><b class="mono" id="kvOld"></b></div>
+            <div><span><i class="sw new"></i>New EMI</span><b class="mono" id="kvNew"></b></div>
+            <div><span>Left in hand</span><b class="mono" id="kvLeft"></b></div>
+          </div>
+        </div>
+        <p class="hint small" id="foirMsg"></p>
+        <div class="label scan-label">Lender scan <span class="mono muted" id="scanCount"></span></div>
+        <div class="scan" id="scan"></div>
+      </aside>
+    </div>
+
+    <section class="results" id="results" aria-live="polite" hidden>
+      <div class="card verdict">
+        <div class="big-ring">
+          <svg viewBox="0 0 190 190" aria-hidden="true">
+            <circle cx="95" cy="95" r="80" class="ring-track wide" />
+            <circle id="vRing" cx="95" cy="95" r="80" class="v-ring" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 95 95)" />
+          </svg>
+          <div class="c"><b class="mono" id="vNum">0</b><span id="vOf">of 20 lenders say yes</span></div>
+        </div>
+        <div>
+          <span class="tier" id="vTier"></span>
+          <h2 id="vHead"></h2>
+          <p class="hint" id="vReason"></p>
+          <ul class="why-not" id="vWhy"></ul>
+        </div>
+      </div>
+
+      <div class="card" id="flowCard">
+        <div class="card-head"><div class="label">Profile → lender flow</div><span class="muted small">thicker strand = cheaper · dotted = declined</span></div>
+        <div id="flow" class="flow"></div>
+      </div>
+
+      <div id="bestWrap"></div>
+
+      <div class="grid-2">
+        <div class="card" id="pathCard">
+          <div class="label">What would change your answer</div>
+          <div id="pathList"></div>
+        </div>
+        <div class="card" id="uncCard">
+          <div class="label">How much the estimated data matters</div>
+          <div id="uncBody"></div>
+        </div>
+      </div>
+
+      <div class="card-head row-head">
+        <h3 class="sec-title">Every lender that says yes</h3>
+        <div class="seg" id="sortSeg" role="group" aria-label="Sort lenders">
+          <button type="button" class="on" data-sort="apr">True cost</button>
+          <button type="button" data-sort="max_amount">Amount</button>
+          <button type="button" data-sort="emi">EMI</button>
+        </div>
+      </div>
+      <div class="lgrid" id="lenderGrid"></div>
+
+      <div class="card rej" id="rejCard">
+        <details><summary id="rejSummary"></summary><div id="rejList"></div></details>
+      </div>
+    </section>
+  </section>
+
+  <!-- ======================================================= LENDERS -->
+  <section class="page" id="page-lenders" hidden>
+    <header class="page-head">
+      <span class="label">Lender directory</span>
+      <h2>20 lenders, every rule sourced</h2>
+      <p class="hint">Each value is tagged <span class="src official">official</span>, <span class="src calculator">calculator</span> or <span class="src estimate">peer estimate</span>. Open a lender to see every rule with its link and the date it was read.</p>
+    </header>
+    <div class="filters">
+      <input type="search" id="lenderSearch" placeholder="Search lenders" aria-label="Search lenders" />
+      <div class="seg" id="typeSeg" role="group" aria-label="Lender type"></div>
+    </div>
+    <div class="dgrid" id="dirGrid"></div>
+  </section>
+
+  <!-- ======================================================= INSIGHTS -->
+  <section class="page" id="page-insights" hidden>
+    <header class="page-head">
+      <span class="label">Insights · 10,000 simulated applicants</span>
+      <h2>What the rules do to people</h2>
+      <p class="hint">The model was run on a synthetic salaried population (assumption A10). These numbers describe how the published rules behave, not real approval rates.</p>
+    </header>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid-2">
+      <div class="card"><div class="label">Which rule rejects the most</div><p class="hint small">Share of all applicant × lender checks that fail on each rule</p><div id="chartRules" class="hbars"></div></div>
+      <div class="card"><div class="label">Approval rate by lender type</div><p class="hint small">Average share of applicants each type approves</p><div id="chartTypes" class="hbars"></div></div>
+    </div>
+    <div class="card"><div class="card-head"><div class="label">How lenders differ</div><span class="muted small">bar = approval rate · hover for APR and amount</span></div><div id="chartLenders" class="hbars tall"></div></div>
+    <div class="grid-2">
+      <div class="card" id="validCard"></div>
+      <div class="card" id="uncInsight"></div>
+    </div>
+  </section>
+
+  <!-- ======================================================= METHOD -->
+  <section class="page" id="page-method" hidden>
+    <header class="page-head">
+      <span class="label">Method</span>
+      <h2>How a decision is made</h2>
+      <p class="hint">No machine learning: there is no public approval data to train on. Every step below is a published rule, a lender's own calculator, or a stated assumption.</p>
+    </header>
+    <ol class="pipeline" id="pipeline"></ol>
+    <div class="grid-2">
+      <div class="card"><div class="label">Where the data comes from</div><div id="srcMix"></div></div>
+      <div class="card"><div class="label">Run it yourself</div>
+        <pre class="code mono">python src/eligibility.py      # test profiles → tests/test_results.md
+python scripts/simulate.py     # 10,000-applicant insights
+python -m unittest discover -s tests
+python app.py                  # this app at localhost:8000</pre>
+      </div>
+    </div>
+    <div class="card"><div class="label">Assumptions</div><p class="hint small">Every number the model uses that is not a lender rule. Source: data/assumptions.csv</p><div class="table-wrap"><table id="assumptions"></table></div></div>
+  </section>
+</main>
+
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-bg" data-close></div>
+  <div class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <button type="button" class="iconbtn" data-close aria-label="Close">✕</button>
+    <div id="drawerBody"></div>
+  </div>
+</aside>
+<div class="tooltip" id="tip" role="tooltip"></div>
+
+<footer>Built only from lenders' published rules, read 11–12 Oct 2026. An indicative screen, not a bank decision, a loan offer or financial advice.</footer>
+
+<script src="data.js"></script>
+<script src="eligibility.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
